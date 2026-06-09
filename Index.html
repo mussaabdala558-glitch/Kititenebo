@@ -1,0 +1,1372 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kititenebo SMS Portal</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --primary: #1565C0;
+    --primary-dark: #0D47A1;
+    --primary-light: #E3F2FD;
+    --accent: #FF6F00;
+    --accent-light: #FFF3E0;
+    --green: #2E7D32;
+    --green-light: #E8F5E9;
+    --red: #C62828;
+    --red-light: #FFEBEE;
+    --gray-50: #FAFAFA;
+    --gray-100: #F5F5F5;
+    --gray-200: #EEEEEE;
+    --gray-300: #E0E0E0;
+    --gray-400: #BDBDBD;
+    --gray-500: #9E9E9E;
+    --gray-700: #616161;
+    --gray-900: #212121;
+    --white: #FFFFFF;
+    --shadow-sm: 0 1px 3px rgba(0,0,0,.10);
+    --shadow-md: 0 4px 12px rgba(0,0,0,.12);
+    --shadow-lg: 0 8px 24px rgba(0,0,0,.14);
+    --radius: 12px;
+    --radius-sm: 8px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: var(--gray-100);
+    color: var(--gray-900);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ===== HEADER ===== */
+  header {
+    background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
+    color: var(--white);
+    padding: 0 24px;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: var(--shadow-md);
+    position: sticky; top: 0; z-index: 100;
+  }
+  .header-left { display: flex; align-items: center; gap: 12px; }
+  .logo-icon {
+    width: 40px; height: 40px;
+    background: rgba(255,255,255,0.15);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px;
+  }
+  .header-title { font-size: 18px; font-weight: 800; letter-spacing: -0.3px; }
+  .header-sub { font-size: 11px; opacity: 0.75; }
+  .balance-chip {
+    background: rgba(255,255,255,0.15);
+    border: 1px solid rgba(255,255,255,0.25);
+    border-radius: 20px;
+    padding: 6px 14px;
+    font-size: 13px;
+    font-weight: 700;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .balance-dot { width: 8px; height: 8px; border-radius: 50%; background: #69F0AE; }
+
+  /* ===== LAYOUT ===== */
+  .app-body { display: flex; flex: 1; }
+  nav {
+    width: 200px;
+    background: var(--white);
+    padding: 16px 0;
+    border-right: 1px solid var(--gray-200);
+    display: flex; flex-direction: column; gap: 2px;
+    position: sticky; top: 64px; height: calc(100vh - 64px); overflow-y: auto;
+  }
+  .nav-section-label {
+    font-size: 10px; font-weight: 800; letter-spacing: 1.2px;
+    color: var(--gray-500); padding: 12px 16px 4px; text-transform: uppercase;
+  }
+  .nav-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 16px; cursor: pointer;
+    border-radius: 0; font-size: 13.5px; font-weight: 600;
+    color: var(--gray-700); transition: all 0.15s; border-left: 3px solid transparent;
+  }
+  .nav-item:hover { background: var(--primary-light); color: var(--primary); }
+  .nav-item.active {
+    background: var(--primary-light); color: var(--primary);
+    border-left-color: var(--primary);
+  }
+  .nav-icon { font-size: 18px; width: 24px; text-align: center; }
+
+  main { flex: 1; padding: 24px; overflow-y: auto; max-width: 1100px; }
+
+  /* ===== PAGE ===== */
+  .page { display: none; animation: fadeIn 0.2s ease; }
+  .page.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+  .page-title { font-size: 22px; font-weight: 800; color: var(--gray-900); margin-bottom: 4px; }
+  .page-sub { font-size: 13px; color: var(--gray-500); margin-bottom: 20px; }
+
+  /* ===== CARDS ===== */
+  .card {
+    background: var(--white); border-radius: var(--radius);
+    box-shadow: var(--shadow-sm); border: 1px solid var(--gray-200);
+    padding: 20px; margin-bottom: 16px;
+  }
+  .card-title {
+    font-size: 14px; font-weight: 800; color: var(--gray-700);
+    margin-bottom: 14px; display: flex; align-items: center; gap: 8px;
+  }
+
+  /* ===== STATS GRID ===== */
+  .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 20px; }
+  .stat-card {
+    background: var(--white); border-radius: var(--radius);
+    border: 1px solid var(--gray-200); padding: 16px;
+    box-shadow: var(--shadow-sm);
+  }
+  .stat-label { font-size: 11px; font-weight: 700; color: var(--gray-500); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+  .stat-value { font-size: 28px; font-weight: 900; color: var(--gray-900); line-height: 1; }
+  .stat-note { font-size: 11px; color: var(--gray-500); margin-top: 4px; }
+  .stat-accent { color: var(--primary); }
+  .stat-green { color: var(--green); }
+  .stat-orange { color: var(--accent); }
+
+  /* ===== FORMS ===== */
+  label { display: block; font-size: 12px; font-weight: 700; color: var(--gray-700); margin-bottom: 5px; }
+  input, select, textarea {
+    width: 100%; padding: 10px 12px;
+    border: 1.5px solid var(--gray-300); border-radius: var(--radius-sm);
+    font-family: 'Nunito', sans-serif; font-size: 14px; color: var(--gray-900);
+    background: var(--white); transition: border-color 0.15s, box-shadow 0.15s;
+    outline: none;
+  }
+  input:focus, select:focus, textarea:focus {
+    border-color: var(--primary); box-shadow: 0 0 0 3px rgba(21,101,192,0.12);
+  }
+  textarea { resize: vertical; min-height: 100px; }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+  .form-group { margin-bottom: 14px; }
+
+  /* ===== BUTTONS ===== */
+  .btn {
+    padding: 10px 20px; border-radius: var(--radius-sm); border: none;
+    font-family: 'Nunito', sans-serif; font-size: 14px; font-weight: 700;
+    cursor: pointer; transition: all 0.15s; display: inline-flex; align-items: center; gap: 7px;
+  }
+  .btn-primary { background: var(--primary); color: var(--white); box-shadow: var(--shadow-sm); }
+  .btn-primary:hover { background: var(--primary-dark); box-shadow: var(--shadow-md); transform: translateY(-1px); }
+  .btn-success { background: var(--green); color: var(--white); }
+  .btn-success:hover { background: #1B5E20; transform: translateY(-1px); }
+  .btn-outline { background: transparent; color: var(--primary); border: 1.5px solid var(--primary); }
+  .btn-outline:hover { background: var(--primary-light); }
+  .btn-danger { background: var(--red); color: var(--white); }
+  .btn-danger:hover { background: #B71C1C; }
+  .btn-sm { padding: 6px 12px; font-size: 12px; }
+  .btn-lg { padding: 13px 28px; font-size: 15px; }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; }
+
+  /* ===== CHAR COUNT ===== */
+  .char-count {
+    text-align: right; font-size: 11px; color: var(--gray-500);
+    margin-top: 4px; font-family: 'Roboto Mono', monospace;
+  }
+  .char-count.warn { color: var(--accent); }
+  .char-count.over { color: var(--red); }
+
+  /* ===== BADGES ===== */
+  .badge {
+    display: inline-block; padding: 3px 9px; border-radius: 20px;
+    font-size: 11px; font-weight: 700;
+  }
+  .badge-green { background: var(--green-light); color: var(--green); }
+  .badge-red { background: var(--red-light); color: var(--red); }
+  .badge-blue { background: var(--primary-light); color: var(--primary); }
+  .badge-orange { background: var(--accent-light); color: var(--accent); }
+
+  /* ===== TABLE ===== */
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+  th {
+    background: var(--gray-100); padding: 10px 12px;
+    text-align: left; font-size: 11px; font-weight: 800;
+    color: var(--gray-500); text-transform: uppercase; letter-spacing: 0.5px;
+    border-bottom: 1.5px solid var(--gray-200);
+  }
+  td { padding: 10px 12px; border-bottom: 1px solid var(--gray-100); vertical-align: middle; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: var(--gray-50); }
+
+  /* ===== TEMPLATE CHIPS ===== */
+  .template-grid { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
+  .template-chip {
+    padding: 6px 12px; background: var(--primary-light); color: var(--primary);
+    border-radius: 20px; font-size: 12px; font-weight: 700; cursor: pointer;
+    border: 1.5px solid var(--primary); transition: all 0.15s;
+  }
+  .template-chip:hover { background: var(--primary); color: var(--white); }
+
+  /* ===== RECIPIENT CHECKBOXES ===== */
+  .group-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 14px; }
+  .group-check {
+    background: var(--gray-50); border: 1.5px solid var(--gray-200);
+    border-radius: var(--radius-sm); padding: 12px;
+    display: flex; align-items: center; gap: 8px;
+    cursor: pointer; transition: all 0.15s; user-select: none;
+  }
+  .group-check:hover { border-color: var(--primary); background: var(--primary-light); }
+  .group-check.selected { border-color: var(--primary); background: var(--primary-light); }
+  .group-check input { width: auto; }
+  .group-name { font-size: 13px; font-weight: 700; color: var(--gray-900); }
+  .group-count { font-size: 11px; color: var(--gray-500); }
+
+  /* ===== TOAST ===== */
+  #toast {
+    position: fixed; bottom: 24px; right: 24px; z-index: 9999;
+    background: var(--gray-900); color: var(--white);
+    padding: 12px 20px; border-radius: var(--radius-sm);
+    font-size: 14px; font-weight: 600;
+    box-shadow: var(--shadow-lg); display: none;
+    animation: slideUp 0.3s ease;
+  }
+  @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+  /* ===== SEND CONFIRMATION ===== */
+  .confirm-box {
+    background: linear-gradient(135deg, var(--primary-light), #E8F5E9);
+    border: 1.5px solid var(--primary);
+    border-radius: var(--radius); padding: 18px; margin-top: 16px;
+    display: none;
+  }
+  .confirm-box h4 { font-size: 14px; font-weight: 800; color: var(--primary); margin-bottom: 10px; }
+  .confirm-row { display: flex; gap: 12px; align-items: center; }
+
+  /* ===== PROGRESS ===== */
+  .progress-bar { background: var(--gray-200); border-radius: 10px; height: 8px; overflow: hidden; margin: 8px 0; }
+  .progress-fill { height: 100%; border-radius: 10px; background: linear-gradient(90deg, var(--primary), #42A5F5); transition: width 0.5s ease; }
+
+  /* ===== SEARCH ===== */
+  .search-bar {
+    display: flex; gap: 10px; margin-bottom: 16px; align-items: center;
+  }
+  .search-bar input { flex: 1; }
+
+  /* ===== HISTORY ITEM ===== */
+  .history-item {
+    padding: 14px; border-bottom: 1px solid var(--gray-100);
+    display: flex; align-items: flex-start; gap: 14px;
+  }
+  .history-item:last-child { border-bottom: none; }
+  .history-icon {
+    width: 38px; height: 38px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center; font-size: 18px;
+    flex-shrink: 0;
+  }
+  .history-msg { font-size: 13px; color: var(--gray-700); margin: 3px 0; line-height: 1.4; }
+  .history-meta { font-size: 11px; color: var(--gray-400); }
+
+  /* ===== QUICK ACTIONS ===== */
+  .quick-actions { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px; }
+  .quick-card {
+    background: var(--white); border-radius: var(--radius);
+    border: 1.5px solid var(--gray-200); padding: 16px;
+    cursor: pointer; transition: all 0.18s; text-align: center;
+    box-shadow: var(--shadow-sm);
+  }
+  .quick-card:hover { border-color: var(--primary); box-shadow: var(--shadow-md); transform: translateY(-2px); }
+  .quick-card-icon { font-size: 28px; margin-bottom: 8px; }
+  .quick-card-label { font-size: 13px; font-weight: 700; color: var(--gray-700); }
+  .quick-card-sub { font-size: 11px; color: var(--gray-500); margin-top: 2px; }
+
+  /* ===== RESPONSIVE ===== */
+  @media (max-width: 700px) {
+    nav { width: 56px; }
+    .nav-item span { display: none; }
+    .nav-section-label { display: none; }
+    .stats-grid { grid-template-columns: 1fr 1fr; }
+    .form-row { grid-template-columns: 1fr; }
+    .group-grid { grid-template-columns: 1fr 1fr; }
+    .quick-actions { grid-template-columns: 1fr 1fr; }
+    .header-sub { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-left">
+    <div class="logo-icon">📡</div>
+    <div>
+      <div class="header-title">Kititenebo SMS Portal</div>
+      <div class="header-sub">Shule ya Kititenebo · Kiteto, Manyara</div>
+    </div>
+  </div>
+  <div class="balance-chip">
+    <div class="balance-dot"></div>
+    <span>Salio: <strong id="balance-display">TZS 25,000</strong></span>
+  </div>
+</header>
+
+<div class="app-body">
+  <!-- NAV -->
+  <nav>
+    <span class="nav-section-label">Menyu Kuu</span>
+    <div class="nav-item active" onclick="showPage('dashboard')">
+      <span class="nav-icon">🏠</span><span>Dashibodi</span>
+    </div>
+    <div class="nav-item" onclick="showPage('send')">
+      <span class="nav-icon">📤</span><span>Tuma SMS</span>
+    </div>
+    <div class="nav-item" onclick="showPage('bulk')">
+      <span class="nav-icon">📢</span><span>Bulk SMS</span>
+    </div>
+    <span class="nav-section-label">Usimamizi</span>
+    <div class="nav-item" onclick="showPage('contacts')">
+      <span class="nav-icon">👥</span><span>Wazazi</span>
+    </div>
+    <div class="nav-item" onclick="showPage('templates')">
+      <span class="nav-icon">📝</span><span>Violezo</span>
+    </div>
+    <div class="nav-item" onclick="showPage('history')">
+      <span class="nav-icon">📋</span><span>Historia</span>
+    </div>
+    <span class="nav-section-label">Mfumo</span>
+    <div class="nav-item" onclick="showPage('settings')">
+      <span class="nav-icon">⚙️</span><span>Mipangilio</span>
+    </div>
+  </nav>
+
+  <!-- MAIN -->
+  <main>
+
+    <!-- ===== DASHBOARD ===== -->
+    <div class="page active" id="page-dashboard">
+      <div class="page-title">🏠 Dashibodi</div>
+      <div class="page-sub">Karibu, Msimamizi · <span id="current-date"></span></div>
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-label">SMS Zilizotumwa Leo</div>
+          <div class="stat-value stat-accent" id="stat-today">0</div>
+          <div class="stat-note">Jumla ya wiki: <span id="stat-week">0</span></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Wazazi Waliosajiliwa</div>
+          <div class="stat-value stat-green" id="stat-parents">0</div>
+          <div class="stat-note">Namba zote halali</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Kiwango cha Ufikiaji</div>
+          <div class="stat-value" id="stat-rate">—</div>
+          <div class="stat-note">Delivered / Sent</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Salio la SMS</div>
+          <div class="stat-value stat-orange" id="stat-balance">—</div>
+          <div class="stat-note">Africa's Talking</div>
+        </div>
+      </div>
+
+      <div class="quick-actions">
+        <div class="quick-card" onclick="showPage('send')">
+          <div class="quick-card-icon">✉️</div>
+          <div class="quick-card-label">Tuma SMS Moja</div>
+          <div class="quick-card-sub">Namba moja</div>
+        </div>
+        <div class="quick-card" onclick="showPage('bulk')">
+          <div class="quick-card-icon">📣</div>
+          <div class="quick-card-label">Bulk SMS</div>
+          <div class="quick-card-sub">Darasa/Kikundi</div>
+        </div>
+        <div class="quick-card" onclick="quickTemplate('ada')">
+          <div class="quick-card-icon">💰</div>
+          <div class="quick-card-label">Kikumbusha Ada</div>
+          <div class="quick-card-sub">Template ya haraka</div>
+        </div>
+        <div class="quick-card" onclick="quickTemplate('matokeo')">
+          <div class="quick-card-icon">📊</div>
+          <div class="quick-card-label">Taarifa Matokeo</div>
+          <div class="quick-card-sub">Template ya haraka</div>
+        </div>
+        <div class="quick-card" onclick="quickTemplate('tangazo')">
+          <div class="quick-card-icon">📢</div>
+          <div class="quick-card-label">Tangazo la Shule</div>
+          <div class="quick-card-sub">Template ya haraka</div>
+        </div>
+        <div class="quick-card" onclick="showPage('contacts')">
+          <div class="quick-card-icon">➕</div>
+          <div class="quick-card-label">Ongeza Mzazi</div>
+          <div class="quick-card-sub">Sajili namba</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">📋 Matumizi ya Hivi Karibuni</div>
+        <div id="recent-history">
+          <div style="text-align:center;padding:30px;color:var(--gray-400);font-size:13px;">
+            Bado haujatuma SMS yoyote
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== TUMA SMS MOJA ===== -->
+    <div class="page" id="page-send">
+      <div class="page-title">✉️ Tuma SMS</div>
+      <div class="page-sub">Tuma ujumbe kwa mzazi mmoja kwa haraka</div>
+
+      <div class="card">
+        <div class="card-title">📱 Namba ya Mpokeaji</div>
+        <div class="form-row">
+          <div class="form-group" style="margin-bottom:0">
+            <label>Namba ya Simu <span style="color:red">*</span></label>
+            <input type="tel" id="single-phone" placeholder="+255 7XX XXX XXX" oninput="formatPhone(this)">
+          </div>
+          <div class="form-group" style="margin-bottom:0">
+            <label>Jina la Mzazi (Hiari)</label>
+            <input type="text" id="single-name" placeholder="Mfano: Mama Amina">
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">📝 Violezo vya Haraka</div>
+        <div class="template-grid" id="template-chips-send"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">💬 Ujumbe</div>
+        <div class="form-group" style="margin-bottom:6px">
+          <textarea id="single-msg" placeholder="Andika ujumbe wako hapa..." oninput="updateCharCount('single-msg','single-char')"></textarea>
+        </div>
+        <div class="char-count" id="single-char">0 / 160 herufi · 0 SMS</div>
+        <div style="margin-top:14px;display:flex;gap:10px;flex-wrap:wrap;">
+          <button class="btn btn-primary btn-lg" onclick="sendSingle()">📤 Tuma Sasa</button>
+          <button class="btn btn-outline" onclick="previewMsg('single')">👁️ Angalia</button>
+          <button class="btn btn-outline" onclick="clearSingle()">🗑️ Futa</button>
+        </div>
+      </div>
+
+      <div class="confirm-box" id="single-confirm">
+        <h4>✅ Thibitisha Kutuma</h4>
+        <div id="single-confirm-details" style="font-size:13px;color:var(--gray-700);margin-bottom:12px;"></div>
+        <div class="confirm-row">
+          <button class="btn btn-success" onclick="confirmSend('single')">✅ Ndio, Tuma</button>
+          <button class="btn btn-outline" onclick="cancelConfirm('single')">❌ Ghairi</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== BULK SMS ===== -->
+    <div class="page" id="page-bulk">
+      <div class="page-title">📢 Bulk SMS</div>
+      <div class="page-sub">Tuma ujumbe kwa wazazi wa darasa zima au kikundi</div>
+
+      <div class="card">
+        <div class="card-title">👥 Chagua Wapokeaji</div>
+        <div class="group-grid" id="group-grid"></div>
+        <div style="font-size:12px;color:var(--gray-500);">
+          Waliochaguliwa: <strong id="selected-count">0</strong> wazazi
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">📝 Violezo vya Haraka</div>
+        <div class="template-grid" id="template-chips-bulk"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">💬 Ujumbe wa Kutuma</div>
+        <div class="form-group" style="margin-bottom:6px">
+          <textarea id="bulk-msg" placeholder="Andika ujumbe..." oninput="updateCharCount('bulk-msg','bulk-char')"></textarea>
+        </div>
+        <div class="char-count" id="bulk-char">0 / 160 herufi · 0 SMS</div>
+        <div style="margin-top:14px;display:flex;gap:10px;flex-wrap:wrap;">
+          <button class="btn btn-primary btn-lg" onclick="sendBulk()">📣 Tuma kwa Wote</button>
+          <button class="btn btn-outline" onclick="previewMsg('bulk')">👁️ Angalia</button>
+        </div>
+      </div>
+
+      <div class="confirm-box" id="bulk-confirm">
+        <h4>✅ Thibitisha Kutuma kwa Wote</h4>
+        <div id="bulk-confirm-details" style="font-size:13px;color:var(--gray-700);margin-bottom:12px;"></div>
+        <div class="progress-bar" id="bulk-progress" style="display:none">
+          <div class="progress-fill" id="bulk-progress-fill" style="width:0%"></div>
+        </div>
+        <div class="confirm-row">
+          <button class="btn btn-success" id="bulk-confirm-btn" onclick="confirmSend('bulk')">✅ Ndio, Tuma</button>
+          <button class="btn btn-outline" onclick="cancelConfirm('bulk')">❌ Ghairi</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== WAZAZI / CONTACTS ===== -->
+    <div class="page" id="page-contacts">
+      <div class="page-title">👥 Orodha ya Wazazi</div>
+      <div class="page-sub">Simamia namba za wazazi na walezi</div>
+
+      <div class="card">
+        <div class="card-title">➕ Ongeza Mzazi Mpya</div>
+        <div class="form-row">
+          <div class="form-group" style="margin-bottom:0">
+            <label>Jina la Mzazi *</label>
+            <input type="text" id="new-parent-name" placeholder="Mfano: Fatuma Hassan">
+          </div>
+          <div class="form-group" style="margin-bottom:0">
+            <label>Namba ya Simu *</label>
+            <input type="tel" id="new-parent-phone" placeholder="+255 7XX XXX XXX">
+          </div>
+        </div>
+        <div class="form-row" style="margin-top:10px">
+          <div class="form-group" style="margin-bottom:0">
+            <label>Jina la Mtoto</label>
+            <input type="text" id="new-parent-child" placeholder="Mfano: Amina Hassan">
+          </div>
+          <div class="form-group" style="margin-bottom:0">
+            <label>Darasa</label>
+            <select id="new-parent-class">
+              <option value="">-- Chagua Darasa --</option>
+              <option>Baby</option><option>PP1</option><option>PP2</option>
+              <option>Darasa 1</option><option>Darasa 2</option><option>Darasa 3</option>
+              <option>Darasa 4</option><option>Darasa 5</option><option>Darasa 6</option><option>Darasa 7</option>
+            </select>
+          </div>
+        </div>
+        <div style="margin-top:14px">
+          <button class="btn btn-primary" onclick="addContact()">➕ Hifadhi Mzazi</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">📋 Wazazi Wote (<span id="contact-count">0</span>)</div>
+        <div class="search-bar">
+          <input type="text" id="contact-search" placeholder="🔍 Tafuta jina, namba au darasa..." oninput="filterContacts()">
+          <button class="btn btn-outline btn-sm" onclick="exportContacts()">⬇️ Hamisha</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Jina la Mzazi</th>
+                <th>Namba ya Simu</th>
+                <th>Mtoto</th>
+                <th>Darasa</th>
+                <th>Vitendo</th>
+              </tr>
+            </thead>
+            <tbody id="contacts-table"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== VIOLEZO ===== -->
+    <div class="page" id="page-templates">
+      <div class="page-title">📝 Violezo vya Ujumbe</div>
+      <div class="page-sub">Violezo vya SMS vilivyoandaliwa tayari kwa matumizi ya shule</div>
+
+      <div class="card">
+        <div class="card-title">➕ Unda Kiolezo Kipya</div>
+        <div class="form-row">
+          <div class="form-group" style="margin-bottom:0">
+            <label>Jina la Kiolezo</label>
+            <input type="text" id="tmpl-name" placeholder="Mfano: Kikumbusha Ada ya Mwezi">
+          </div>
+          <div class="form-group" style="margin-bottom:0">
+            <label>Aina</label>
+            <select id="tmpl-cat">
+              <option>Ada</option><option>Matokeo</option><option>Mahudhurio</option>
+              <option>Tangazo</option><option>Dharura</option><option>Nyingine</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group" style="margin-top:10px;margin-bottom:6px">
+          <label>Maandishi ya Ujumbe</label>
+          <textarea id="tmpl-body" placeholder="Andika kiolezo... Unaweza kutumia {jina_mzazi}, {jina_mtoto}, {darasa}, {kiasi} kama nafasi maalum" oninput="updateCharCount('tmpl-body','tmpl-char')"></textarea>
+        </div>
+        <div class="char-count" id="tmpl-char">0 / 160</div>
+        <div style="margin-top:10px">
+          <button class="btn btn-primary" onclick="saveTemplate()">💾 Hifadhi Kiolezo</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">📚 Violezo Vilivyopo</div>
+        <div id="templates-list"></div>
+      </div>
+    </div>
+
+    <!-- ===== HISTORIA ===== -->
+    <div class="page" id="page-history">
+      <div class="page-title">📋 Historia ya SMS</div>
+      <div class="page-sub">SMS zote zilizotumwa na mfumo huu</div>
+
+      <div class="card" style="padding:0;overflow:hidden">
+        <div style="padding:16px;border-bottom:1px solid var(--gray-200);display:flex;align-items:center;gap:10px;">
+          <input type="text" id="history-search" placeholder="🔍 Tafuta ujumbe..." style="flex:1" oninput="filterHistory()">
+          <button class="btn btn-outline btn-sm" onclick="clearHistory()">🗑️ Futa Yote</button>
+        </div>
+        <div id="history-list">
+          <div style="text-align:center;padding:40px;color:var(--gray-400);font-size:13px;">
+            Historia iko tupu. Tuma SMS ya kwanza!
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== MIPANGILIO ===== -->
+    <div class="page" id="page-settings">
+      <div class="page-title">⚙️ Mipangilio</div>
+      <div class="page-sub">Sanidi API na taarifa za shule</div>
+
+      <div class="card">
+        <div class="card-title">🔑 Africa's Talking API</div>
+        <div class="form-group">
+          <label>API Key</label>
+          <input type="password" id="at-api-key" placeholder="Weka API Key yako hapa">
+        </div>
+        <div class="form-row">
+          <div class="form-group" style="margin-bottom:0">
+            <label>Username</label>
+            <input type="text" id="at-username" placeholder="Mfano: abdalamussa">
+          </div>
+          <div class="form-group" style="margin-bottom:0">
+            <label>Sender ID</label>
+            <input type="text" id="at-sender" placeholder="KITITENEBO" value="KITITENEBO">
+          </div>
+        </div>
+        <div class="form-group" style="margin-top:10px">
+          <label>
+            <input type="checkbox" id="at-sandbox" style="width:auto;margin-right:6px"> Tumia Sandbox (Majaribio)
+          </label>
+        </div>
+        <div style="margin-top:10px;display:flex;gap:10px;">
+          <button class="btn btn-primary" onclick="saveSettings()">💾 Hifadhi</button>
+          <button class="btn btn-outline" onclick="testConnection()">🔌 Jaribu Muunganiko</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">🏫 Taarifa za Shule</div>
+        <div class="form-row">
+          <div class="form-group" style="margin-bottom:0">
+            <label>Jina la Shule</label>
+            <input type="text" id="school-name" value="Shule ya Msingi Kititenebo">
+          </div>
+          <div class="form-group" style="margin-bottom:0">
+            <label>Simu ya Shule</label>
+            <input type="tel" id="school-phone" placeholder="+255 ...">
+          </div>
+        </div>
+        <div style="margin-top:10px">
+          <button class="btn btn-primary" onclick="saveSchoolInfo()">💾 Hifadhi</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">📦 Data ya Mfumo</div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+          <button class="btn btn-outline" onclick="exportData()">⬇️ Hamisha Data</button>
+          <button class="btn btn-outline" onclick="importData()">⬆️ Ingiza Data</button>
+          <button class="btn btn-danger btn-sm" onclick="resetAll()">⚠️ Futa Kila Kitu</button>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ============================================================
+//  DATA STORE (localStorage)
+// ============================================================
+const DB = {
+  get: k => { try { return JSON.parse(localStorage.getItem('ksp_' + k) || 'null'); } catch { return null; } },
+  set: (k, v) => localStorage.setItem('ksp_' + k, JSON.stringify(v)),
+  push: (k, item) => {
+    const arr = DB.get(k) || [];
+    arr.push(item);
+    DB.set(k, arr);
+  }
+};
+
+// Default data
+function initDB() {
+  if (!DB.get('contacts')) {
+    DB.set('contacts', [
+      { id: 1, name: 'Mama Amina Hassan', phone: '+255712345678', child: 'Amina Hassan', cls: 'Darasa 5' },
+      { id: 2, name: 'Baba Juma Mwangi', phone: '+255754321098', child: 'Juma Mwangi', cls: 'Darasa 3' },
+      { id: 3, name: 'Mama Fatuma Ali', phone: '+255765432109', child: 'Fatuma Ali', cls: 'Darasa 7' },
+      { id: 4, name: 'Baba Mohamed Said', phone: '+255787654321', child: 'Mohamed Said', cls: 'Darasa 1' },
+      { id: 5, name: 'Mama Grace Peter', phone: '+255798765432', child: 'Grace Peter', cls: 'PP2' },
+      { id: 6, name: 'Baba Rashid Omar', phone: '+255723456789', child: 'Rashid Omar', cls: 'Darasa 6' },
+    ]);
+  }
+  if (!DB.get('templates')) {
+    DB.set('templates', [
+      { id: 1, name: 'Kikumbusha Ada', cat: 'Ada', body: 'Mpendwa mzazi, tunakukumbusha kuhusu ada ya {mtoto} wa {darasa}. Tafadhali lipa kiasi cha {kiasi} ifikapo {tarehe}. Shule ya Kititenebo.' },
+      { id: 2, name: 'Matokeo Mazuri', cat: 'Matokeo', body: 'Hongera {mzazi}! Mtoto wako {mtoto} amefanya vizuri mtihani wa {mtihani}. Nafasi ya darasa: {nafasi}. Shule ya Kititenebo.' },
+      { id: 3, name: 'Kutokujulikana kwa Mtoto', cat: 'Mahudhurio', body: 'Mpendwa mzazi, mtoto wako {mtoto} wa {darasa} hakuwepo shuleni leo {tarehe}. Tafadhali wasiliana nasi: +255XXX. Shule ya Kititenebo.' },
+      { id: 4, name: 'Tangazo la Shule', cat: 'Tangazo', body: 'Taarifa kutoka Shule ya Kititenebo: {ujumbe}. Kwa maswali piga simu: +255XXX. Mungu Akubariki.' },
+      { id: 5, name: 'Likizo ya Shule', cat: 'Tangazo', body: 'Mpendwa mzazi, shule itafungwa tarehe {tarehe} kwa likizo ya {aina}. Itafunguliwa tena tarehe {tarehe_rejea}. Shule ya Kititenebo.' },
+      { id: 6, name: 'Dharura ya Shule', cat: 'Dharura', body: 'MUHIMU: {ujumbe}. Tafadhali wasiliana na shule haraka iwezekanavyo. Simu: +255XXX. Shule ya Kititenebo.' },
+    ]);
+  }
+  if (!DB.get('history')) DB.set('history', []);
+  if (!DB.get('settings')) {
+    DB.set('settings', { apiKey: '', username: 'abdalamussa', sender: 'KITITENEBO', sandbox: true, schoolName: 'Shule ya Msingi Kititenebo', schoolPhone: '' });
+  }
+  if (!DB.get('stats')) DB.set('stats', { today: 0, week: 0, total: 0, delivered: 0 });
+}
+
+// ============================================================
+//  NAVIGATION
+// ============================================================
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n => {
+    if (n.getAttribute('onclick') && n.getAttribute('onclick').includes("'" + id + "'")) n.classList.add('active');
+  });
+  if (id === 'contacts') renderContacts();
+  if (id === 'templates') renderTemplates();
+  if (id === 'history') renderHistory();
+  if (id === 'bulk') renderGroups();
+  if (id === 'settings') loadSettings();
+  if (id === 'dashboard') refreshDashboard();
+}
+
+// ============================================================
+//  DASHBOARD
+// ============================================================
+function refreshDashboard() {
+  const contacts = DB.get('contacts') || [];
+  const stats = DB.get('stats') || {};
+  const history = DB.get('history') || [];
+  const settings = DB.get('settings') || {};
+
+  document.getElementById('stat-today').textContent = stats.today || 0;
+  document.getElementById('stat-week').textContent = stats.week || 0;
+  document.getElementById('stat-parents').textContent = contacts.length;
+  document.getElementById('stat-balance').textContent = settings.balance || 'Haijawekwa';
+
+  const rate = stats.total > 0 ? Math.round((stats.delivered / stats.total) * 100) + '%' : '—';
+  document.getElementById('stat-rate').textContent = rate;
+
+  // Recent
+  const el = document.getElementById('recent-history');
+  if (history.length === 0) {
+    el.innerHTML = '<div style="text-align:center;padding:30px;color:var(--gray-400);font-size:13px;">Bado haujatuma SMS yoyote</div>';
+  } else {
+    el.innerHTML = history.slice(-5).reverse().map(h => historyItemHTML(h)).join('');
+  }
+
+  const d = new Date();
+  document.getElementById('current-date').textContent = d.toLocaleDateString('sw-TZ', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+}
+
+// ============================================================
+//  CHAR COUNT
+// ============================================================
+function updateCharCount(textareaId, countId) {
+  const txt = document.getElementById(textareaId).value;
+  const len = txt.length;
+  const sms = Math.ceil(len / 160) || 0;
+  const el = document.getElementById(countId);
+  el.textContent = `${len} / 160 herufi · ${sms} SMS`;
+  el.className = 'char-count' + (len > 160 ? ' over' : len > 140 ? ' warn' : '');
+}
+
+// ============================================================
+//  PHONE FORMAT
+// ============================================================
+function formatPhone(input) {
+  let v = input.value.replace(/[^+\d]/g, '');
+  input.value = v;
+}
+
+// ============================================================
+//  TEMPLATES
+// ============================================================
+function renderTemplateChips(containerId, targetId) {
+  const templates = DB.get('templates') || [];
+  const el = document.getElementById(containerId);
+  el.innerHTML = templates.map(t =>
+    `<div class="template-chip" onclick="useTemplate('${t.id}','${targetId}')">${t.name}</div>`
+  ).join('');
+}
+
+function useTemplate(id, targetId) {
+  const templates = DB.get('templates') || [];
+  const tmpl = templates.find(t => String(t.id) === String(id));
+  if (!tmpl) return;
+  document.getElementById(targetId).value = tmpl.body;
+  updateCharCount(targetId, targetId === 'single-msg' ? 'single-char' : targetId === 'bulk-msg' ? 'bulk-char' : 'tmpl-char');
+  toast('✅ Kiolezo kimewekwa');
+}
+
+function renderTemplates() {
+  const templates = DB.get('templates') || [];
+  const el = document.getElementById('templates-list');
+  if (templates.length === 0) {
+    el.innerHTML = '<p style="color:var(--gray-400);font-size:13px;padding:10px 0">Hakuna violezo. Unda kipya.</p>';
+    return;
+  }
+  el.innerHTML = templates.map(t => `
+    <div style="padding:14px;border-bottom:1px solid var(--gray-100);display:flex;align-items:flex-start;gap:12px;">
+      <div style="flex:1">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;">
+          <strong style="font-size:14px">${t.name}</strong>
+          <span class="badge badge-blue">${t.cat}</span>
+        </div>
+        <div style="font-size:12.5px;color:var(--gray-700);line-height:1.5">${t.body}</div>
+      </div>
+      <div style="display:flex;gap:6px;flex-shrink:0;">
+        <button class="btn btn-outline btn-sm" onclick="editTemplate(${t.id})">✏️</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteTemplate(${t.id})">🗑️</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function saveTemplate() {
+  const name = document.getElementById('tmpl-name').value.trim();
+  const cat = document.getElementById('tmpl-cat').value;
+  const body = document.getElementById('tmpl-body').value.trim();
+  if (!name || !body) { toast('⚠️ Jaza jina na maandishi ya kiolezo', 'warn'); return; }
+  const templates = DB.get('templates') || [];
+  const id = Date.now();
+  templates.push({ id, name, cat, body });
+  DB.set('templates', templates);
+  document.getElementById('tmpl-name').value = '';
+  document.getElementById('tmpl-body').value = '';
+  renderTemplates();
+  renderTemplateChips('template-chips-send', 'single-msg');
+  renderTemplateChips('template-chips-bulk', 'bulk-msg');
+  toast('✅ Kiolezo kimehifadhiwa');
+}
+
+function deleteTemplate(id) {
+  if (!confirm('Futa kiolezo hiki?')) return;
+  let templates = DB.get('templates') || [];
+  templates = templates.filter(t => t.id !== id);
+  DB.set('templates', templates);
+  renderTemplates();
+  renderTemplateChips('template-chips-send', 'single-msg');
+  renderTemplateChips('template-chips-bulk', 'bulk-msg');
+  toast('🗑️ Kiolezo kimefutwa');
+}
+
+function editTemplate(id) {
+  const templates = DB.get('templates') || [];
+  const t = templates.find(x => x.id === id);
+  if (!t) return;
+  document.getElementById('tmpl-name').value = t.name;
+  document.getElementById('tmpl-cat').value = t.cat;
+  document.getElementById('tmpl-body').value = t.body;
+  deleteTemplate(id);
+  toast('✏️ Hariri kiolezo, kisha hifadhi upya');
+}
+
+// ============================================================
+//  CONTACTS
+// ============================================================
+function renderContacts(filter = '') {
+  const contacts = DB.get('contacts') || [];
+  const el = document.getElementById('contacts-table');
+  document.getElementById('contact-count').textContent = contacts.length;
+  const filtered = filter
+    ? contacts.filter(c =>
+        c.name.toLowerCase().includes(filter) ||
+        c.phone.includes(filter) ||
+        (c.cls || '').toLowerCase().includes(filter)
+      )
+    : contacts;
+  if (filtered.length === 0) {
+    el.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:24px;color:var(--gray-400)">Hakuna wazazi wanaofaa</td></tr>';
+    return;
+  }
+  el.innerHTML = filtered.map((c, i) => `
+    <tr>
+      <td style="color:var(--gray-400)">${i + 1}</td>
+      <td><strong>${c.name}</strong></td>
+      <td><span style="font-family:'Roboto Mono',monospace;font-size:12px">${c.phone}</span></td>
+      <td>${c.child || '—'}</td>
+      <td><span class="badge badge-blue">${c.cls || '—'}</span></td>
+      <td>
+        <button class="btn btn-outline btn-sm" onclick="sendToContact('${c.phone}','${c.name}')">📤</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteContact(${c.id})">🗑️</button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function filterContacts() {
+  renderContacts(document.getElementById('contact-search').value.toLowerCase());
+}
+
+function addContact() {
+  const name = document.getElementById('new-parent-name').value.trim();
+  const phone = document.getElementById('new-parent-phone').value.trim();
+  const child = document.getElementById('new-parent-child').value.trim();
+  const cls = document.getElementById('new-parent-class').value;
+  if (!name || !phone) { toast('⚠️ Jaza jina na namba ya simu', 'warn'); return; }
+  if (!phone.startsWith('+') && !phone.startsWith('0') && !phone.startsWith('255')) {
+    toast('⚠️ Namba ya simu si sahihi', 'warn'); return;
+  }
+  const contacts = DB.get('contacts') || [];
+  const id = Date.now();
+  contacts.push({ id, name, phone, child, cls });
+  DB.set('contacts', contacts);
+  document.getElementById('new-parent-name').value = '';
+  document.getElementById('new-parent-phone').value = '';
+  document.getElementById('new-parent-child').value = '';
+  document.getElementById('new-parent-class').value = '';
+  renderContacts();
+  renderGroups();
+  toast('✅ Mzazi ameongezwa');
+}
+
+function deleteContact(id) {
+  if (!confirm('Futa mzazi huyu?')) return;
+  let contacts = DB.get('contacts') || [];
+  contacts = contacts.filter(c => c.id !== id);
+  DB.set('contacts', contacts);
+  renderContacts();
+  renderGroups();
+  toast('🗑️ Mzazi amefutwa');
+}
+
+function sendToContact(phone, name) {
+  showPage('send');
+  document.getElementById('single-phone').value = phone;
+  document.getElementById('single-name').value = name;
+  toast('📱 Jaza ujumbe kisha tuma');
+}
+
+function exportContacts() {
+  const contacts = DB.get('contacts') || [];
+  const rows = ['Jina,Namba,Mtoto,Darasa', ...contacts.map(c => `${c.name},${c.phone},${c.child || ''},${c.cls || ''}`)];
+  download('wazazi_kititenebo.csv', rows.join('\n'));
+  toast('⬇️ Faili imepakuliwa');
+}
+
+// ============================================================
+//  GROUPS (for Bulk)
+// ============================================================
+const CLASSES = ['Baby', 'PP1', 'PP2', 'Darasa 1', 'Darasa 2', 'Darasa 3', 'Darasa 4', 'Darasa 5', 'Darasa 6', 'Darasa 7'];
+
+function renderGroups() {
+  const contacts = DB.get('contacts') || [];
+  const el = document.getElementById('group-grid');
+  const groups = [
+    { key: 'all', label: 'Wazazi Wote', count: contacts.length, icon: '👥' },
+    ...CLASSES.map(cls => ({
+      key: cls,
+      label: cls,
+      count: contacts.filter(c => c.cls === cls).length,
+      icon: '🏫'
+    })).filter(g => g.count > 0)
+  ];
+  el.innerHTML = groups.map(g => `
+    <div class="group-check" id="grp-${g.key.replace(/\s/g,'-')}" onclick="toggleGroup('${g.key}')">
+      <input type="checkbox" id="chk-${g.key.replace(/\s/g,'-')}" style="width:auto">
+      <div>
+        <div class="group-name">${g.icon} ${g.label}</div>
+        <div class="group-count">${g.count} mzazi</div>
+      </div>
+    </div>
+  `).join('');
+  updateSelectedCount();
+}
+
+function toggleGroup(key) {
+  const safeKey = key.replace(/\s/g, '-');
+  const el = document.getElementById('grp-' + safeKey);
+  const chk = document.getElementById('chk-' + safeKey);
+  el.classList.toggle('selected');
+  chk.checked = el.classList.contains('selected');
+  updateSelectedCount();
+}
+
+function updateSelectedCount() {
+  const contacts = DB.get('contacts') || [];
+  const selected = getSelectedContacts();
+  document.getElementById('selected-count').textContent = selected.length;
+}
+
+function getSelectedContacts() {
+  const contacts = DB.get('contacts') || [];
+  const selected = new Set();
+  document.querySelectorAll('.group-check.selected').forEach(el => {
+    const key = el.id.replace('grp-', '').replace(/-/g, ' ');
+    if (key === 'Wazazi Wote') {
+      contacts.forEach(c => selected.add(c.id));
+    } else {
+      contacts.filter(c => c.cls === key).forEach(c => selected.add(c.id));
+    }
+  });
+  return contacts.filter(c => selected.has(c.id));
+}
+
+// ============================================================
+//  SEND SINGLE SMS
+// ============================================================
+function sendSingle() {
+  const phone = document.getElementById('single-phone').value.trim();
+  const name = document.getElementById('single-name').value.trim();
+  const msg = document.getElementById('single-msg').value.trim();
+  if (!phone) { toast('⚠️ Weka namba ya simu', 'warn'); return; }
+  if (!msg) { toast('⚠️ Andika ujumbe', 'warn'); return; }
+  const box = document.getElementById('single-confirm');
+  document.getElementById('single-confirm-details').innerHTML =
+    `<strong>Mpokeaji:</strong> ${name || phone}<br>
+     <strong>Namba:</strong> ${phone}<br>
+     <strong>Ujumbe (${msg.length} herufi):</strong><br>
+     <div style="background:var(--gray-100);padding:10px;border-radius:6px;margin-top:6px;font-size:13px">${msg}</div>`;
+  box.style.display = 'block';
+  box.scrollIntoView({ behavior: 'smooth' });
+}
+
+function clearSingle() {
+  document.getElementById('single-phone').value = '';
+  document.getElementById('single-name').value = '';
+  document.getElementById('single-msg').value = '';
+  updateCharCount('single-msg', 'single-char');
+  document.getElementById('single-confirm').style.display = 'none';
+}
+
+// ============================================================
+//  SEND BULK SMS
+// ============================================================
+function sendBulk() {
+  const recipients = getSelectedContacts();
+  const msg = document.getElementById('bulk-msg').value.trim();
+  if (recipients.length === 0) { toast('⚠️ Chagua kikundi au darasa', 'warn'); return; }
+  if (!msg) { toast('⚠️ Andika ujumbe', 'warn'); return; }
+  const box = document.getElementById('bulk-confirm');
+  document.getElementById('bulk-confirm-details').innerHTML =
+    `<strong>Wapokeaji:</strong> ${recipients.length} wazazi<br>
+     <strong>Ujumbe (${msg.length} herufi):</strong><br>
+     <div style="background:var(--gray-100);padding:10px;border-radius:6px;margin-top:6px;font-size:13px">${msg}</div>
+     <br><strong>Jumla ya SMS:</strong> ~${recipients.length * Math.ceil(msg.length / 160)}`;
+  box.style.display = 'block';
+  box.scrollIntoView({ behavior: 'smooth' });
+}
+
+// ============================================================
+//  CONFIRM SEND
+// ============================================================
+async function confirmSend(type) {
+  const settings = DB.get('settings') || {};
+  const msg = document.getElementById(type === 'single' ? 'single-msg' : 'bulk-msg').value.trim();
+
+  if (type === 'single') {
+    const phone = document.getElementById('single-phone').value.trim();
+    const name = document.getElementById('single-name').value.trim() || phone;
+    await doSendSMS([{ phone, name }], msg, settings);
+  } else {
+    const recipients = getSelectedContacts();
+    const btn = document.getElementById('bulk-confirm-btn');
+    const progress = document.getElementById('bulk-progress');
+    const fill = document.getElementById('bulk-progress-fill');
+    btn.disabled = true;
+    progress.style.display = 'block';
+    let done = 0;
+    for (const c of recipients) {
+      await doSendSMS([c], msg, settings);
+      done++;
+      fill.style.width = Math.round((done / recipients.length) * 100) + '%';
+      await sleep(200);
+    }
+    btn.disabled = false;
+  }
+
+  document.getElementById(type + '-confirm').style.display = 'none';
+  if (type === 'single') clearSingle();
+  else document.getElementById('bulk-msg').value = '';
+  updateCharCount(type === 'single' ? 'single-msg' : 'bulk-msg', type === 'single' ? 'single-char' : 'bulk-char');
+  refreshDashboard();
+}
+
+async function doSendSMS(recipients, msg, settings) {
+  const timestamp = new Date().toLocaleString('sw-TZ');
+  for (const r of recipients) {
+    let status = 'delivered';
+    let note = '';
+
+    if (settings.apiKey && settings.username) {
+      try {
+        const baseURL = settings.sandbox
+          ? 'https://api.sandbox.africastalking.com/version1/messaging'
+          : 'https://api.africastalking.com/version1/messaging';
+
+        const resp = await fetch(baseURL, {
+          method: 'POST',
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'apiKey': settings.apiKey
+          },
+          body: new URLSearchParams({
+            username: settings.username,
+            to: r.phone,
+            message: msg,
+            from: settings.sender || 'KITITENEBO'
+          })
+        });
+        const data = await resp.json();
+        const rec = data?.SMSMessageData?.Recipients?.[0];
+        status = rec?.status === 'Success' ? 'delivered' : 'failed';
+        note = rec?.statusCode || '';
+      } catch (e) {
+        status = 'failed';
+        note = 'Hitilafu ya mtandao';
+      }
+    } else {
+      status = 'simulated';
+      note = 'Hakuna API Key — majaribio ya ndani';
+    }
+
+    const histItem = {
+      id: Date.now() + Math.random(),
+      phone: r.phone,
+      name: r.name || r.phone,
+      msg: msg,
+      status: status,
+      note: note,
+      time: timestamp
+    };
+    DB.push('history', histItem);
+
+    const stats = DB.get('stats') || { today: 0, week: 0, total: 0, delivered: 0 };
+    stats.today = (stats.today || 0) + 1;
+    stats.week = (stats.week || 0) + 1;
+    stats.total = (stats.total || 0) + 1;
+    if (status === 'delivered' || status === 'simulated') stats.delivered = (stats.delivered || 0) + 1;
+    DB.set('stats', stats);
+  }
+
+  const allGood = recipients.length === 1;
+  toast(allGood ? `✅ SMS imetumwa kwa ${recipients[0].name || recipients[0].phone}` : `✅ SMS ${recipients.length} zimetumwa`);
+}
+
+function cancelConfirm(type) {
+  document.getElementById(type + '-confirm').style.display = 'none';
+}
+
+function previewMsg(type) {
+  const msg = document.getElementById(type === 'single' ? 'single-msg' : 'bulk-msg').value.trim();
+  if (!msg) { toast('⚠️ Hakuna ujumbe wa kuangalia', 'warn'); return; }
+  alert('📱 Mfano wa SMS:\n\n' + msg);
+}
+
+// ============================================================
+//  QUICK TEMPLATES
+// ============================================================
+function quickTemplate(type) {
+  const templates = DB.get('templates') || [];
+  const map = { ada: 'Ada', matokeo: 'Matokeo', tangazo: 'Tangazo' };
+  const t = templates.find(x => x.cat === map[type]);
+  showPage('send');
+  if (t) {
+    document.getElementById('single-msg').value = t.body;
+    updateCharCount('single-msg', 'single-char');
+    toast('📝 Kiolezo cha ' + map[type] + ' kimewekwa');
+  }
+}
+
+// ============================================================
+//  HISTORY
+// ============================================================
+function historyItemHTML(h) {
+  const iconMap = { delivered: '✅', failed: '❌', simulated: '🧪' };
+  const colorMap = { delivered: 'var(--green-light)', failed: 'var(--red-light)', simulated: 'var(--accent-light)' };
+  return `
+    <div class="history-item">
+      <div class="history-icon" style="background:${colorMap[h.status] || 'var(--gray-100)'}">
+        ${iconMap[h.status] || '📨'}
+      </div>
+      <div style="flex:1">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px">
+          <strong style="font-size:13px">${h.name}</strong>
+          <span class="badge ${h.status === 'delivered' ? 'badge-green' : h.status === 'failed' ? 'badge-red' : 'badge-orange'}">${h.status}</span>
+        </div>
+        <div class="history-msg">${h.msg.substring(0, 80)}${h.msg.length > 80 ? '...' : ''}</div>
+        <div class="history-meta">${h.phone} · ${h.time}${h.note ? ' · ' + h.note : ''}</div>
+      </div>
+    </div>
+  `;
+}
+
+function renderHistory() {
+  const history = DB.get('history') || [];
+  const el = document.getElementById('history-list');
+  const filter = (document.getElementById('history-search')?.value || '').toLowerCase();
+  const filtered = filter
+    ? history.filter(h => h.msg.toLowerCase().includes(filter) || h.name.toLowerCase().includes(filter) || h.phone.includes(filter))
+    : history;
+  if (filtered.length === 0) {
+    el.innerHTML = '<div style="text-align:center;padding:40px;color:var(--gray-400);font-size:13px;">Hakuna SMS. Tuma ya kwanza!</div>';
+    return;
+  }
+  el.innerHTML = [...filtered].reverse().map(h => historyItemHTML(h)).join('');
+}
+
+function filterHistory() { renderHistory(); }
+
+function clearHistory() {
+  if (!confirm('Futa historia yote ya SMS?')) return;
+  DB.set('history', []);
+  DB.set('stats', { today: 0, week: 0, total: 0, delivered: 0 });
+  renderHistory();
+  refreshDashboard();
+  toast('🗑️ Historia imefutwa');
+}
+
+// ============================================================
+//  SETTINGS
+// ============================================================
+function loadSettings() {
+  const s = DB.get('settings') || {};
+  if (s.apiKey) document.getElementById('at-api-key').value = s.apiKey;
+  if (s.username) document.getElementById('at-username').value = s.username;
+  if (s.sender) document.getElementById('at-sender').value = s.sender;
+  document.getElementById('at-sandbox').checked = s.sandbox !== false;
+  if (s.schoolName) document.getElementById('school-name').value = s.schoolName;
+  if (s.schoolPhone) document.getElementById('school-phone').value = s.schoolPhone;
+}
+
+function saveSettings() {
+  const s = DB.get('settings') || {};
+  s.apiKey = document.getElementById('at-api-key').value.trim();
+  s.username = document.getElementById('at-username').value.trim();
+  s.sender = document.getElementById('at-sender').value.trim();
+  s.sandbox = document.getElementById('at-sandbox').checked;
+  DB.set('settings', s);
+  document.getElementById('balance-display').textContent = s.balance || 'Haijajulikana';
+  toast('✅ Mipangilio imehifadhiwa');
+}
+
+function saveSchoolInfo() {
+  const s = DB.get('settings') || {};
+  s.schoolName = document.getElementById('school-name').value.trim();
+  s.schoolPhone = document.getElementById('school-phone').value.trim();
+  DB.set('settings', s);
+  toast('✅ Taarifa za shule zimehifadhiwa');
+}
+
+async function testConnection() {
+  const s = DB.get('settings') || {};
+  if (!s.apiKey || !s.username) {
+    toast('⚠️ Weka API Key na Username kwanza', 'warn'); return;
+  }
+  toast('🔌 Inajaribu muunganiko...');
+  try {
+    const url = s.sandbox
+      ? `https://api.sandbox.africastalking.com/version1/user?username=${s.username}`
+      : `https://api.africastalking.com/version1/user?username=${s.username}`;
+    const resp = await fetch(url, {
+      headers: { 'Accept': 'application/json', 'apiKey': s.apiKey }
+    });
+    const data = await resp.json();
+    if (data?.UserData?.balance !== undefined) {
+      s.balance = data.UserData.balance;
+      DB.set('settings', s);
+      document.getElementById('balance-display').textContent = s.balance;
+      toast('✅ Muunganiko umefanikiwa! Salio: ' + s.balance);
+    } else {
+      toast('❌ API Key au Username si sahihi', 'warn');
+    }
+  } catch (e) {
+    toast('❌ Hitilafu ya mtandao: ' + e.message, 'warn');
+  }
+}
+
+// ============================================================
+//  EXPORT / IMPORT / RESET
+// ============================================================
+function exportData() {
+  const data = {
+    contacts: DB.get('contacts'),
+    templates: DB.get('templates'),
+    history: DB.get('history'),
+    stats: DB.get('stats')
+  };
+  download('ksp_backup_' + new Date().toISOString().slice(0, 10) + '.json', JSON.stringify(data, null, 2));
+  toast('⬇️ Nakala ya data imepakuliwa');
+}
+
+function importData() {
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = '.json';
+  input.onchange = e => {
+    const file = e.target.files[0];
+    const reader = new FileReader();
+    reader.onload = ev => {
+      try {
+        const data = JSON.parse(ev.target.result);
+        if (data.contacts) DB.set('contacts', data.contacts);
+        if (data.templates) DB.set('templates', data.templates);
+        if (data.history) DB.set('history', data.history);
+        if (data.stats) DB.set('stats', data.stats);
+        toast('✅ Data imeingizwa kikamilifu');
+        refreshDashboard();
+      } catch { toast('❌ Faili si sahihi', 'warn'); }
+    };
+    reader.readAsText(file);
+  };
+  input.click();
+}
+
+function resetAll() {
+  if (!confirm('ONYO: Hatua hii itafuta wazazi WOTE, historia, na mipangilio. Endelea?')) return;
+  if (!confirm('Una uhakika kabisa? Data haitarudishwa.')) return;
+  ['contacts', 'templates', 'history', 'stats', 'settings'].forEach(k => localStorage.removeItem('ksp_' + k));
+  initDB();
+  refreshDashboard();
+  toast('♻️ Mfumo umewekwa upya');
+}
+
+// ============================================================
+//  UTILS
+// ============================================================
+function toast(msg, type = 'ok') {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.style.display = 'block';
+  el.style.background = type === 'warn' ? '#C62828' : '#212121';
+  clearTimeout(el._t);
+  el._t = setTimeout(() => { el.style.display = 'none'; }, 3500);
+}
+
+function download(filename, content) {
+  const a = document.createElement('a');
+  a.href = 'data:text/plain;charset=utf-8,' + encodeURIComponent(content);
+  a.download = filename;
+  a.click();
+}
+
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+// ============================================================
+//  INIT
+// ============================================================
+initDB();
+refreshDashboard();
+renderTemplateChips('template-chips-send', 'single-msg');
+renderTemplateChips('template-chips-bulk', 'bulk-msg');
+
+document.getElementById('current-date').textContent = new Date().toLocaleDateString('sw-TZ', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+</script>
+</body>
+</html>
